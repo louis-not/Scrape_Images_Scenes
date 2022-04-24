@@ -8,10 +8,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import time
 import urllib
+import shutil
 import os
 
 
-IMG_QTY = 5
+DATA_DIR = 'dataset_v1'
+IMG_QTY = 20
 
 def start_scraping(url,queries):
     """ open webdriver """
@@ -27,11 +29,18 @@ def start_scraping(url,queries):
 
 def create_directory(query):
     parentDir = os.getcwd()
-    dataDir = os.path.join(parentDir,"dataset")
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)   
+    dataDir = os.path.join(parentDir,DATA_DIR)
     queryDir = os.path.join(dataDir,query[:-1])
     print(queryDir)
-    # pls fix son 
-    os.makedirs(queryDir)
+    
+    if not os.path.exists(queryDir):
+        os.makedirs(queryDir)
+    else:
+        shutil.rmtree(queryDir)           
+        os.makedirs(queryDir)
+
     print('Directory {} created'.format(query[:-1]))
     
     return queryDir
