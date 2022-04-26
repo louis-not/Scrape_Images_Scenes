@@ -2,11 +2,11 @@ from scrape import start_scraping
 import pandas as pd
 
 def get_queries():
-    url_queries = 'label_clean.csv'
+    url_queries = 'new_categories_label.csv'
 
-    df = pd.read_csv(url_queries, names = ['queries'])
+    df = pd.read_csv(url_queries)
     queries = list()
-    for data in df['queries']:
+    for data in df['label']:
         queries.append(data)
     return queries
 

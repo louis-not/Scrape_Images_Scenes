@@ -12,13 +12,13 @@ import shutil
 import os
 
 
-DATA_DIR = 'dataset_v1'
-IMG_QTY = 20
+DATA_DIR = 'dataset_v2_less_label'
+IMG_QTY = 500
 
 def start_scraping(url,queries):
     """ open webdriver """
     options = Options()
-    # options.add_argument('--headless')
+    options.add_argument('--headless')
     driver = webdriver.Chrome(
         service=Service(ChromeDriverManager().install()),
         options=options)
@@ -38,7 +38,7 @@ def create_directory(query):
     if not os.path.exists(queryDir):
         os.makedirs(queryDir)
     else:
-        shutil.rmtree(queryDir)           
+        shutil.rmtree(queryDir,ignore_errors=True)           
         os.makedirs(queryDir)
 
     print('Directory {} created'.format(query[:-1]))
@@ -48,7 +48,7 @@ def create_directory(query):
 def scrape_by_query(driver,query):
     """" start scraping query """
     queryDir = create_directory(query)
-    print('scrapping image data for:  {}'.format(query))
+    print('Scrapping image data for:  {}'.format(query))
     # click 'sign in' pop up
     try:
         driver.find_element(By.XPATH,
@@ -70,13 +70,24 @@ def scrape_by_query(driver,query):
                             ).send_keys(query)
 
     # scrape and download image
+    errorImage = 0
     for i in range(1, IMG_QTY+1):
-        imgSrc = driver.find_element(By.XPATH,
-                                '//*[@id="islrg"]/div[1]/div[{}]/a[1]/div[1]/img'.format(i)
-                                ).get_attribute('src')
-        urllib.request.urlretrieve(imgSrc, os.path.join(queryDir,'{}.png'.format(i)))
+        try:
+            imgElement = driver.find_element(By.XPATH,
+                                    '//*[@id="islrg"]/div[1]/div[{}]/a[1]/div[1]/img'.format(i)
+                                    )
+            imgSrc = imgElement.get_attribute('src')
+            urllib.request.urlretrieve(imgSrc, os.path.join(queryDir,'{}.png'.format(i)))
+        except:
+            print("Failed getting {}".format(i))
+            errorImage += 1
 
-        
+        if i%20 == 1 and i!=1 :
+            webdriver.ActionChains(driver).scroll(0,0,0,10000, origin=imgElement).perform()
+            time.sleep(5)
+    
+    # print summary        
+    print('Non-Error Image : {}'.format(IMG_QTY-errorImage))
     time.sleep(5)
 
 
