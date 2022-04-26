@@ -13,8 +13,7 @@ def get_queries():
 
 def main():
     url = 'https://images.google.com'      
-    
-    # queries = ['pantai','gunung','museum']    # FOR TRIAL
+    # queries = ['mountain','beach','museum']    
     queries = get_queries()
     print(len(queries))
     start_scraping(url,queries)
